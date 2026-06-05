@@ -1,0 +1,300 @@
+PROJECT: AI-Based Government Internship Recommendation and Eligibility Analysis System (100% Free, No API Keys)
+
+Modify and complete this project so it runs entirely on Replit Free Tier without using OpenAI, Gemini, Claude, Anthropic, or any paid AI service.
+
+GOAL
+Build a web application that recommends suitable Government Internships to students based on:
+
+- GPA
+- Qualification
+- Skills
+- Preferred Location
+
+The system must analyze eligibility, calculate match scores, rank internships, and display the best recommendations.
+
+DATA SOURCE
+
+The user will upload internship CSV files extracted from:
+
+- AICTE Internships
+- PM Internship Portal
+- Government Internship Portals
+- Other government internship sources
+
+One CSV named:
+
+india_gov_internship_sources.csv
+
+contains verified government internship sources.
+
+TASK 1: DATA CLEANING AND DATASET CREATION
+
+When internship CSV files are uploaded:
+
+1. Read all uploaded CSV files.
+2. Identify which internships belong to government organizations.
+3. Use india_gov_internship_sources.csv as the primary verification source.
+4. Remove duplicates.
+5. Ignore invalid records.
+6. Normalize column names.
+7. Create one final dataset.
+
+Required columns:
+
+- internship_title
+- organization
+- skills_required
+- min_gpa
+- qualification
+- location
+- deadline
+- internship_url
+- source
+- description
+
+Rules:
+
+- Every row must contain all required fields.
+- Missing values should be handled intelligently.
+- Remove duplicate internships.
+- Keep only active internships whenever possible.
+
+Save as:
+
+final_government_internships.csv
+
+TASK 2: REAL-TIME GOVERNMENT INTERNSHIP SCRAPING
+
+Build rule-based scrapers using:
+
+- Requests
+- BeautifulSoup4
+- Pandas
+- PDFPlumber or PyPDF2
+
+Supported sources:
+
+- AICTE Internship Portal
+- PM Internship Portal
+- NITI Aayog Internship Portal
+- Government Ministry Internship Pages
+- Other websites listed in india_gov_internship_sources.csv
+
+Requirements:
+
+- No AI APIs
+- No LLMs
+- No API Keys
+
+Features:
+
+- Crawl websites directly
+- Extract internship details from HTML pages
+- Extract internship details from PDF notices
+- Follow pagination automatically
+- Remove duplicates
+- Update database automatically
+- Generate CSV export automatically
+- Handle website failures gracefully
+
+TASK 3: DATABASE
+
+Use SQLite.
+
+Create tables:
+
+students
+internships
+recommendations
+
+Internship table fields:
+
+- id
+- internship_title
+- organization
+- skills_required
+- min_gpa
+- qualification
+- location
+- deadline
+- internship_url
+- source
+- description
+
+TASK 4: ELIGIBILITY ANALYSIS
+
+Student Inputs:
+
+- GPA
+- Qualification
+- Skills
+- Preferred Location
+
+Eligibility Rules:
+
+- GPA check
+- Qualification check
+- Location preference check
+- Required skill check
+
+Output:
+
+- Eligible / Not Eligible
+- Eligibility Percentage
+
+TASK 5: SKILL MATCHING
+
+Use:
+
+- TF-IDF Vectorizer
+- Cosine Similarity
+
+Process:
+
+1. Convert student skills into text.
+2. Convert internship skills into text.
+3. Calculate similarity score.
+4. Generate Skill Match Percentage.
+
+TASK 6: MATCH SCORING
+
+Create weighted scoring:
+
+40% Skill Match
+25% GPA Match
+20% Qualification Match
+15% Location Match
+
+Formula:
+
+Final Score =
+(0.40 × Skill Score) +
+(0.25 × GPA Score) +
+(0.20 × Qualification Score) +
+(0.15 × Location Score)
+
+Return score from 0–100.
+
+TASK 7: RECOMMENDATION ENGINE
+
+For each student:
+
+1. Check eligibility.
+2. Calculate TF-IDF similarity.
+3. Calculate weighted score.
+4. Rank internships.
+5. Return Top 10 internships.
+
+Display:
+
+- Internship Title
+- Organization
+- Match Percentage
+- Eligibility Status
+- Deadline
+- Location
+- Apply Link
+
+Sort by highest score first.
+
+TASK 8: WEB DASHBOARD
+
+Build using:
+
+Frontend:
+
+- HTML
+- CSS
+- JavaScript
+
+Backend:
+
+- Flask
+
+Dashboard Features:
+
+Overview Cards:
+
+- Total Internships
+- Open Internships
+- Closing Soon
+- Government Sources
+
+Student Form:
+
+- GPA
+- Qualification
+- Skills
+- Location
+
+Internship Search:
+
+- Keyword Search
+- Location Filter
+- Qualification Filter
+
+Recommendation Page:
+
+- Top Matches
+- Match Percentage
+- Eligibility Result
+
+Admin Page:
+
+- Run Scraper
+- Update Database
+- Export CSV
+
+TASK 9: CSV EXPORT
+
+Generate:
+
+final_government_internships.csv
+
+Export button should download latest dataset.
+
+TASK 10: ERROR HANDLING
+
+Show clear messages for:
+
+- Website unavailable
+- Invalid CSV
+- Missing fields
+- Scraping failures
+- Database errors
+
+TASK 11: REPLIT DEPLOYMENT
+
+Application must:
+
+- Run on Replit Free Tier
+- Use only free open-source libraries
+- Require NO API keys
+- Require NO secrets
+- Require NO paid services
+
+Remove completely:
+
+- OpenAI
+- GPT
+- Claude
+- Anthropic
+- Gemini
+- LangChain AI APIs
+- OPENAI_API_KEY
+- Any external LLM dependency
+
+EXPECTED FINAL RESULT
+
+A fully functional Government Internship Recommendation System that:
+
+1. Scrapes internships from government websites.
+2. Extracts internship data from HTML and PDF notices.
+3. Creates a clean government internship dataset.
+4. Stores internships in SQLite.
+5. Uses TF-IDF + Cosine Similarity for skill matching.
+6. Uses weighted scoring for recommendations.
+7. Calculates eligibility.
+8. Displays top internship recommendations.
+9. Exports CSV automatically.
+10. Runs completely free on Replit without any API key.

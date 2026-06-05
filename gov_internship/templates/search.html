@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Browse Internships{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <div class="container">
+        <h1>🔍 Browse Internships</h1>
+        <p>Search and filter {{ total }} government internships</p>
+    </div>
+</div>
+
+<div class="container search-layout">
+    <aside class="search-sidebar">
+        <div class="panel">
+            <h3>Filter & Search</h3>
+            <form method="GET" action="{{ url_for('search') }}" id="searchForm">
+                <div class="form-group">
+                    <label>Keyword</label>
+                    <input type="text" name="keyword" value="{{ keyword }}" placeholder="Search title, org, skills...">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" name="location" value="{{ location }}" list="location-list" placeholder="e.g. Bangalore, Delhi">
+                    <datalist id="location-list">
+                        {% for loc in locations[:30] %}
+                        <option value="{{ loc }}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    <label>Qualification</label>
+                    <select name="qualification">
+                        <option value="">All Qualifications</option>
+                        {% for q in qualifications %}
+                        <option value="{{ q }}" {% if qualification == q %}selected{% endif %}>{{ q }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="All" {% if status == 'All' %}selected{% endif %}>All</option>
+                        <option value="Open" {% if status == 'Open' %}selected{% endif %}>Open</option>
+                        <option value="Closing Soon" {% if status == 'Closing Soon' %}selected{% endif %}>Closing Soon</option>
+                        <option value="Expired" {% if status == 'Expired' %}selected{% endif %}>Expired</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Apply Filters</button>
+                <a href="{{ url_for('search') }}" class="btn btn-ghost btn-full">Clear All</a>
+            </form>
+        </div>
+
+        <div class="panel panel-cta">
+            <h3>🎯 Get Personalized Matches</h3>
+            <p>Enter your profile to get ranked recommendations with match scores.</p>
+            <a href="{{ url_for('recommend') }}" class="btn btn-primary btn-full">Find My Matches</a>
+        </div>
+    </aside>
+
+    <div class="search-results">
+        <div class="results-meta">
+            <span><strong>{{ total }}</strong> internship{{ 's' if total != 1 else '' }} found</span>
+            {% if keyword or location or qualification or status != 'All' %}
+            <div class="active-filters">
+                {% if keyword %}<span class="filter-tag">🔍 "{{ keyword }}" <a href="{{ url_for('search', location=location, qualification=qualification, status=status) }}">×</a></span>{% endif %}
+                {% if location %}<span class="filter-tag">📍 {{ location }} <a href="{{ url_for('search', keyword=keyword, qualification=qualification, status=status) }}">×</a></span>{% endif %}
+                {% if qualification %}<span class="filter-tag">🎓 {{ qualification }} <a href="{{ url_for('search', keyword=keyword, location=location, status=status) }}">×</a></span>{% endif %}
+                {% if status and status != 'All' %}<span class="filter-tag">✅ {{ status }} <a href="{{ url_for('search', keyword=keyword, location=location, qualification=qualification) }}">×</a></span>{% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        {% if internships %}
+        <div class="internship-list">
+            {% for i in internships %}
+            <div class="internship-list-card">
+                <div class="ilc-left">
+                    <div class="ilc-org">{{ i.organization[:30] }}</div>
+                    <h3 class="ilc-title">
+                        <a href="{{ url_for('internship_detail', internship_id=i.id) }}">{{ i.internship_title }}</a>
+                    </h3>
+                    <div class="ilc-meta">
+                        {% if i.location %}<span class="meta-tag">📍 {{ i.location[:30] }}</span>{% endif %}
+                        {% if i.duration %}<span class="meta-tag">⏱ {{ i.duration }}</span>{% endif %}
+                        {% if i.stipend and i.stipend != 'nan' %}<span class="meta-tag">💰 {{ i.stipend[:20] }}</span>{% endif %}
+                        {% if i.qualification %}<span class="meta-tag">🎓 {{ i.qualification[:25] }}</span>{% endif %}
+                    </div>
+                    {% if i.skills_required %}
+                    <div class="ilc-skills">
+                        {% for skill in i.skills_required.split(',')[:4] %}
+                        <span class="skill-chip skill-sm">{{ skill.strip()[:20] }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="ilc-right">
+                    <span class="status-badge status-{{ i.status | lower | replace(' ', '-') }}">{{ i.status }}</span>
+                    {% if i.deadline %}<div class="ilc-deadline">🗓 {{ i.deadline }}</div>{% endif %}
+                    <div class="ilc-actions">
+                        <a href="{{ url_for('internship_detail', internship_id=i.id) }}" class="btn btn-sm btn-ghost">Details</a>
+                        {% if i.application_link and i.application_link != 'nan' %}
+                        <a href="{{ i.application_link }}" target="_blank" class="btn btn-sm btn-primary">Apply →</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <h3>No internships found</h3>
+            <p>Try adjusting your filters or <a href="{{ url_for('search') }}">clear all filters</a>.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

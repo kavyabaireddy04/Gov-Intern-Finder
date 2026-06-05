@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GovIntern India{% endblock %} — Government Internship Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-logo">
+                <span class="logo-icon">🏛️</span>
+                <span class="logo-text">GovIntern<span class="logo-accent">India</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">Dashboard</a>
+                <a href="{{ url_for('search') }}" class="nav-link {% if request.endpoint == 'search' %}active{% endif %}">Browse</a>
+                <a href="{{ url_for('recommend') }}" class="nav-link nav-cta {% if request.endpoint == 'recommend' %}active{% endif %}">Get Matched</a>
+                <a href="{{ url_for('admin') }}" class="nav-link {% if request.endpoint == 'admin' %}active{% endif %}">Admin</a>
+            </div>
+            <button class="nav-mobile-toggle" onclick="toggleMobileNav()">☰</button>
+        </div>
+        <div class="nav-mobile" id="mobileNav">
+            <a href="{{ url_for('index') }}">Dashboard</a>
+            <a href="{{ url_for('search') }}">Browse Internships</a>
+            <a href="{{ url_for('recommend') }}">Get Matched</a>
+            <a href="{{ url_for('admin') }}">Admin</a>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container">
+        {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }} <button onclick="this.parentElement.remove()">×</button></div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <main>{% block content %}{% endblock %}</main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <span class="logo-icon">🏛️</span> GovIntern India
+                <p>AI-powered government internship recommendations for Indian students</p>
+            </div>
+            <div class="footer-links">
+                <a href="{{ url_for('index') }}">Dashboard</a>
+                <a href="{{ url_for('search') }}">Browse</a>
+                <a href="{{ url_for('recommend') }}">Get Matched</a>
+                <a href="{{ url_for('export') }}">Export CSV</a>
+            </div>
+            <div class="footer-note">
+                <p>Data sourced from AICTE, ISRO, DRDO, NITI Aayog, MEA, MeitY and other government portals.</p>
+                <p>No API keys required. 100% free. Built on open-source tools.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

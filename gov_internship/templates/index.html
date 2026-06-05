@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">🇮🇳 India's #1 Government Internship Platform</div>
+        <h1>Find Your Perfect<br><span class="hero-highlight">Government Internship</span></h1>
+        <p class="hero-sub">AI-powered matching using TF-IDF + Cosine Similarity. Enter your profile and get personalized recommendations from ISRO, DRDO, NITI Aayog, MEA, MeitY, and 50+ government organizations.</p>
+        <div class="hero-actions">
+            <a href="{{ url_for('recommend') }}" class="btn btn-primary btn-lg">🎯 Get Matched Now</a>
+            <a href="{{ url_for('search') }}" class="btn btn-outline btn-lg">🔍 Browse All</a>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="hero-card-stack">
+            <div class="floating-card card-1">
+                <div class="fc-org">ISRO</div>
+                <div class="fc-title">Space Applications Internship</div>
+                <div class="fc-score">94% Match</div>
+            </div>
+            <div class="floating-card card-2">
+                <div class="fc-org">DRDO</div>
+                <div class="fc-title">AI & Robotics Trainee</div>
+                <div class="fc-score">88% Match</div>
+            </div>
+            <div class="floating-card card-3">
+                <div class="fc-org">NITI Aayog</div>
+                <div class="fc-title">Policy Research Intern</div>
+                <div class="fc-score">81% Match</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stats-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-number" data-count="{{ stats.total }}">{{ stats.total }}</div>
+                <div class="stat-label">Total Internships</div>
+            </div>
+            <div class="stat-card stat-highlight">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number" data-count="{{ stats.open }}">{{ stats.open }}</div>
+                <div class="stat-label">Open Now</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏰</div>
+                <div class="stat-number" data-count="{{ stats.closing_soon }}">{{ stats.closing_soon }}</div>
+                <div class="stat-label">Closing Soon</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏢</div>
+                <div class="stat-number" data-count="{{ stats.organizations }}">{{ stats.organizations }}</div>
+                <div class="stat-label">Organizations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🌐</div>
+                <div class="stat-number" data-count="{{ stats.sources }}">{{ stats.sources }}</div>
+                <div class="stat-label">Gov Sources</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="quick-match-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Quick Match</h2>
+            <p>Enter your details for instant recommendations</p>
+        </div>
+        <form class="quick-match-form" action="{{ url_for('recommend') }}" method="POST">
+            <div class="qm-grid">
+                <div class="form-group">
+                    <label>Your GPA (0–10)</label>
+                    <input type="number" name="gpa" placeholder="e.g. 8.5" step="0.01" min="0" max="10" required>
+                </div>
+                <div class="form-group">
+                    <label>Qualification</label>
+                    <select name="qualification" required>
+                        <option value="">Select...</option>
+                        <option value="B.Tech/B.E.">B.Tech / B.E.</option>
+                        <option value="M.Tech/M.E.">M.Tech / M.E.</option>
+                        <option value="MBA">MBA</option>
+                        <option value="B.Sc.">B.Sc.</option>
+                        <option value="M.Sc.">M.Sc.</option>
+                        <option value="PhD">PhD</option>
+                        <option value="Diploma">Diploma</option>
+                        <option value="BCA">BCA</option>
+                        <option value="MCA">MCA</option>
+                        <option value="LLB">LLB</option>
+                        <option value="Any Graduate">Any Graduate</option>
+                    </select>
+                </div>
+                <div class="form-group form-group-wide">
+                    <label>Skills (comma separated)</label>
+                    <input type="text" name="skills" placeholder="e.g. Python, Data Analysis, Machine Learning, SQL">
+                </div>
+                <div class="form-group">
+                    <label>Preferred Location</label>
+                    <input type="text" name="location" placeholder="e.g. Bangalore, Delhi, Pan India">
+                </div>
+                <div class="form-group form-submit">
+                    <button type="submit" class="btn btn-primary">🎯 Find Matches</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% if recent %}
+<section class="recent-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Latest Internships</h2>
+            <a href="{{ url_for('search') }}" class="section-link">View all →</a>
+        </div>
+        <div class="internship-grid">
+            {% for i in recent %}
+            <div class="internship-card">
+                <div class="ic-header">
+                    <div class="ic-org-badge">{{ i.organization[:20] }}</div>
+                    <span class="status-badge status-{{ i.status | lower | replace(' ', '-') }}">{{ i.status }}</span>
+                </div>
+                <h3 class="ic-title">{{ i.internship_title[:60] }}{% if i.internship_title|length > 60 %}...{% endif %}</h3>
+                <div class="ic-meta">
+                    {% if i.location %}<span class="meta-tag">📍 {{ i.location[:30] }}</span>{% endif %}
+                    {% if i.duration %}<span class="meta-tag">⏱ {{ i.duration }}</span>{% endif %}
+                    {% if i.stipend and i.stipend != 'nan' %}<span class="meta-tag">💰 {{ i.stipend[:20] }}</span>{% endif %}
+                </div>
+                {% if i.skills_required %}
+                <div class="ic-skills">
+                    {% for skill in i.skills_required.split(',')[:3] %}
+                    <span class="skill-chip">{{ skill.strip()[:20] }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div class="ic-footer">
+                    {% if i.deadline %}<span class="ic-deadline">🗓 {{ i.deadline }}</span>{% endif %}
+                    <div class="ic-actions">
+                        <a href="{{ url_for('internship_detail', internship_id=i.id) }}" class="btn btn-sm btn-ghost">Details</a>
+                        {% if i.application_link and i.application_link != 'nan' %}
+                        <a href="{{ i.application_link }}" target="_blank" class="btn btn-sm btn-primary">Apply</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="how-it-works">
+    <div class="container">
+        <div class="section-header">
+            <h2>How It Works</h2>
+            <p>Powered by TF-IDF + Cosine Similarity — no AI APIs needed</p>
+        </div>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-num">01</div>
+                <div class="step-icon">📝</div>
+                <h3>Enter Your Profile</h3>
+                <p>Tell us your GPA, qualification, skills, and preferred location.</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step-card">
+                <div class="step-num">02</div>
+                <div class="step-icon">🧠</div>
+                <h3>AI Analysis</h3>
+                <p>TF-IDF vectorizes your skills. Cosine Similarity compares them to each internship's requirements.</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step-card">
+                <div class="step-num">03</div>
+                <div class="step-icon">📊</div>
+                <h3>Weighted Scoring</h3>
+                <p>Skills (40%) + GPA (25%) + Qualification (20%) + Location (15%) = unique match score per internship.</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step-card">
+                <div class="step-num">04</div>
+                <div class="step-icon">🏆</div>
+                <h3>Ranked Results</h3>
+                <p>Top 10 government internships sorted by your personalized match score.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

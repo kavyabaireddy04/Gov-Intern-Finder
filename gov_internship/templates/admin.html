@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <div class="container">
+        <h1>⚙️ Admin Panel</h1>
+        <p>Manage internship database, run scrapers, and export data</p>
+    </div>
+</div>
+
+<div class="container admin-layout">
+    {% if message %}
+    <div class="alert alert-success">✅ {{ message }}</div>
+    {% endif %}
+    {% if error %}
+    <div class="alert alert-error">❌ {{ error }}</div>
+    {% endif %}
+
+    <div class="admin-stats-bar">
+        <div class="asb-item"><strong>{{ stats.total }}</strong><span>Total Internships</span></div>
+        <div class="asb-item asb-green"><strong>{{ stats.open }}</strong><span>Open</span></div>
+        <div class="asb-item asb-orange"><strong>{{ stats.closing_soon }}</strong><span>Closing Soon</span></div>
+        <div class="asb-item"><strong>{{ stats.organizations }}</strong><span>Organizations</span></div>
+        <div class="asb-item"><strong>{{ stats.sources }}</strong><span>Sources</span></div>
+    </div>
+
+    <div class="admin-grid">
+        <div class="panel">
+            <div class="panel-icon">🕷️</div>
+            <h3>Run Scraper</h3>
+            <p>Crawl ISRO, DRDO, NITI Aayog, MEA, MeitY and other government portals for new internships.</p>
+            <form method="POST">
+                <input type="hidden" name="action" value="scrape">
+                <button type="submit" class="btn btn-primary btn-full" onclick="this.textContent='Scraping...'">
+                    Run Now
+                </button>
+            </form>
+            {% if scrape_results %}
+            <div class="scrape-results">
+                {% for source, result in scrape_results.items() %}
+                <div class="sr-item {% if result.status == 'success' %}sr-ok{% else %}sr-err{% endif %}">
+                    <span>{{ source }}</span>
+                    <span>{% if result.status == 'success' %}✓ {{ result.count }} records{% else %}✗ {{ result.get('message', 'failed') }}{% endif %}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="panel">
+            <div class="panel-icon">🔄</div>
+            <h3>Rebuild Dataset</h3>
+            <p>Re-process all existing CSV files and rebuild the internship dataset from scratch.</p>
+            <form method="POST">
+                <input type="hidden" name="action" value="rebuild">
+                <button type="submit" class="btn btn-secondary btn-full" onclick="this.textContent='Processing...'">
+                    Rebuild Now
+                </button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <div class="panel-icon">📁</div>
+            <h3>Upload CSV Files</h3>
+            <p>Upload internship CSV files from AICTE, PM Internship Portal, NCS or other sources for processing.</p>
+            <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="upload">
+                <div class="form-group">
+                    <input type="file" name="csv_files" accept=".csv" multiple class="file-input">
+                    <span class="form-hint">You can select multiple CSV files at once</span>
+                </div>
+                <button type="submit" class="btn btn-secondary btn-full">Upload & Process</button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <div class="panel-icon">📥</div>
+            <h3>Export Dataset</h3>
+            <p>Download the complete internship dataset as a CSV file with all {{ internship_count }} internships.</p>
+            <a href="{{ url_for('export') }}" class="btn btn-outline btn-full">Download CSV</a>
+        </div>
+    </div>
+
+    <div class="panel mt-4">
+        <h3>Supported Data Sources</h3>
+        <div class="source-list">
+            <div class="source-item">
+                <span class="source-icon">🏛️</span>
+                <div>
+                    <strong>AICTE Internship Portal</strong>
+                    <p>internship.aicte-india.org — Government & private internships</p>
+                </div>
+            </div>
+            <div class="source-item">
+                <span class="source-icon">🚀</span>
+                <div>
+                    <strong>ISRO</strong>
+                    <p>isro.gov.in — Space technology internships across all centres</p>
+                </div>
+            </div>
+            <div class="source-item">
+                <span class="source-icon">🔬</span>
+                <div>
+                    <strong>DRDO</strong>
+                    <p>drdo.gov.in — Defence research and technology internships</p>
+                </div>
+            </div>
+            <div class="source-item">
+                <span class="source-icon">📊</span>
+                <div>
+                    <strong>NITI Aayog</strong>
+                    <p>workforindia.niti.gov.in — Policy research internships</p>
+                </div>
+            </div>
+            <div class="source-item">
+                <span class="source-icon">🌐</span>
+                <div>
+                    <strong>MEA</strong>
+                    <p>internship.mea.gov.in — Foreign affairs and diplomacy</p>
+                </div>
+            </div>
+            <div class="source-item">
+                <span class="source-icon">💻</span>
+                <div>
+                    <strong>MeitY</strong>
+                    <p>intern.meity.gov.in — Digital India and technology</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

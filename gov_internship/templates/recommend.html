@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}Get Matched{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <div class="container">
+        <h1>🎯 Internship Matcher</h1>
+        <p>Get personalized government internship recommendations based on your profile</p>
+    </div>
+</div>
+
+<div class="container recommend-layout">
+    <div class="recommend-form-panel">
+        <div class="panel">
+            <h2>Your Profile</h2>
+            {% if error %}
+            <div class="alert alert-error">⚠️ {{ error }}</div>
+            {% endif %}
+            <form method="POST" action="{{ url_for('recommend') }}" id="matchForm">
+                <div class="form-group">
+                    <label>Your Name <span class="optional">(optional)</span></label>
+                    <input type="text" name="name" value="{{ student_data.get('name', '') }}" placeholder="e.g. Priya Sharma">
+                </div>
+                <div class="form-group">
+                    <label>GPA / CGPA <span class="required">*</span></label>
+                    <input type="number" name="gpa" value="{{ student_data.get('gpa', '') }}" placeholder="e.g. 8.5" step="0.01" min="0" max="10" required>
+                    <span class="form-hint">On a 10-point scale</span>
+                </div>
+                <div class="form-group">
+                    <label>Highest Qualification <span class="required">*</span></label>
+                    <select name="qualification" required>
+                        <option value="">Select your qualification...</option>
+                        {% for q in qualifications %}
+                        <option value="{{ q }}" {% if student_data.get('qualification') == q %}selected{% endif %}>{{ q }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Your Skills <span class="required">*</span></label>
+                    <textarea name="skills" rows="3" placeholder="e.g. Python, Machine Learning, Data Analysis, SQL, TensorFlow, Excel" required>{{ student_data.get('skills', '') }}</textarea>
+                    <span class="form-hint">Separate skills with commas</span>
+                </div>
+                <div class="form-group">
+                    <label>Preferred Location</label>
+                    <input type="text" name="location" value="{{ student_data.get('location', '') }}" placeholder="e.g. Bangalore, Delhi, Hyderabad, or Pan India">
+                    <span class="form-hint">Leave blank or type "Pan India" for any location</span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" id="matchBtn">
+                    🎯 Find My Matches
+                </button>
+            </form>
+
+            {% if recommendations %}
+            <div class="match-summary">
+                <h3>Match Summary</h3>
+                <div class="summary-stats">
+                    <div class="ss-item">
+                        <span class="ss-num">{{ recommendations|length }}</span>
+                        <span class="ss-lbl">Matches Found</span>
+                    </div>
+                    <div class="ss-item">
+                        <span class="ss-num ss-green">{{ recommendations[0].match_score }}%</span>
+                        <span class="ss-lbl">Top Match</span>
+                    </div>
+                    <div class="ss-item">
+                        <span class="ss-num">{{ recommendations | selectattr('eligible') | list | length }}</span>
+                        <span class="ss-lbl">Fully Eligible</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="recommend-results-panel">
+        {% if not recommendations and not error %}
+        <div class="empty-state">
+            <div class="empty-icon">🎓</div>
+            <h3>Ready to find your match?</h3>
+            <p>Fill in your profile on the left and click "Find My Matches" to get personalized government internship recommendations ranked by compatibility score.</p>
+            <div class="empty-sources">
+                <span>ISRO</span><span>DRDO</span><span>NITI Aayog</span><span>MEA</span><span>MeitY</span><span>AICTE</span>
+            </div>
+        </div>
+        {% elif error and not recommendations %}
+        <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <h3>Please correct the error</h3>
+            <p>{{ error }}</p>
+        </div>
+        {% else %}
+        <div class="results-header">
+            <h2>Your Top Matches</h2>
+            <p>For <strong>{{ student_data.get('name', 'You') }}</strong> — GPA {{ student_data.get('gpa') }}, {{ student_data.get('qualification') }}</p>
+        </div>
+
+        {% for r in recommendations %}
+        <div class="result-card {% if r.eligible %}eligible{% else %}partial{% endif %}">
+            <div class="rc-rank">
+                <div class="rank-num">#{{ r.rank }}</div>
+                <div class="rank-badge {% if r.match_score >= 80 %}rank-gold{% elif r.match_score >= 60 %}rank-silver{% else %}rank-bronze{% endif %}">
+                    {% if r.match_score >= 80 %}⭐ Excellent{% elif r.match_score >= 60 %}👍 Good{% else %}📌 Fair{% endif %}
+                </div>
+            </div>
+
+            <div class="rc-body">
+                <div class="rc-header">
+                    <div>
+                        <div class="rc-org">{{ r.organization }}</div>
+                        <h3 class="rc-title">{{ r.internship_title }}</h3>
+                    </div>
+                    <div class="rc-scores">
+                        <div class="score-circle {% if r.match_score >= 80 %}score-green{% elif r.match_score >= 60 %}score-yellow{% else %}score-red{% endif %}">
+                            <span class="score-val">{{ r.match_score }}%</span>
+                            <span class="score-lbl">Match</span>
+                        </div>
+                        <div class="score-circle score-blue">
+                            <span class="score-val">{{ r.eligibility_score }}%</span>
+                            <span class="score-lbl">Eligible</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rc-breakdown">
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">Skills Match</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: {{ r.skill_score }}%"></div>
+                        </div>
+                        <span class="breakdown-val">{{ r.skill_score }}%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">GPA</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: {{ r.gpa_score }}%"></div>
+                        </div>
+                        <span class="breakdown-val">{{ r.gpa_score }}%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">Qualification</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: {{ r.qual_score }}%"></div>
+                        </div>
+                        <span class="breakdown-val">{{ r.qual_score }}%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">Location</span>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: {{ r.loc_score }}%"></div>
+                        </div>
+                        <span class="breakdown-val">{{ r.loc_score }}%</span>
+                    </div>
+                </div>
+
+                <div class="rc-eligibility">
+                    <div class="elig-item">
+                        <span class="elig-icon {% if 'Met' in r.gpa_status %}elig-ok{% else %}elig-no{% endif %}">{{ '✓' if 'Met' in r.gpa_status else '✗' }}</span>
+                        <span>GPA: {{ r.gpa_status }}</span>
+                    </div>
+                    <div class="elig-item">
+                        <span class="elig-icon {% if r.qual_status == 'Met' %}elig-ok{% elif r.qual_status == 'Partially Matched' %}elig-partial{% else %}elig-no{% endif %}">
+                            {{ '✓' if r.qual_status == 'Met' else ('~' if r.qual_status == 'Partially Matched' else '✗') }}
+                        </span>
+                        <span>Qualification: {{ r.qual_status }}</span>
+                    </div>
+                    <div class="elig-item">
+                        <span class="elig-icon {% if 'Yes' in r.loc_status %}elig-ok{% elif 'Partial' in r.loc_status %}elig-partial{% else %}elig-no{% endif %}">
+                            {{ '✓' if 'Yes' in r.loc_status else ('~' if 'Partial' in r.loc_status else '✗') }}
+                        </span>
+                        <span>Location: {{ r.loc_status }}</span>
+                    </div>
+                    {% if r.missing_skills %}
+                    <div class="elig-item elig-missing">
+                        <span class="elig-icon elig-warn">!</span>
+                        <span>Missing Skills: {{ r.missing_skills | join(', ') }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="rc-meta">
+                    {% if r.location %}<span class="meta-tag">📍 {{ r.location[:35] }}</span>{% endif %}
+                    {% if r.deadline %}<span class="meta-tag">🗓 {{ r.deadline }}</span>{% endif %}
+                    {% if r.duration %}<span class="meta-tag">⏱ {{ r.duration }}</span>{% endif %}
+                    {% if r.stipend and r.stipend != 'nan' %}<span class="meta-tag">💰 {{ r.stipend[:25] }}</span>{% endif %}
+                    <span class="meta-tag meta-source">🌐 {{ r.source[:25] }}</span>
+                </div>
+
+                {% if r.skills_required %}
+                <div class="rc-req-skills">
+                    <strong>Skills Required:</strong>
+                    {% for skill in r.skills_required.split(',')[:6] %}
+                    <span class="skill-chip">{{ skill.strip()[:25] }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="rc-actions">
+                    <a href="{{ url_for('internship_detail', internship_id=r.id) }}" class="btn btn-sm btn-ghost">View Details</a>
+                    {% if r.application_link and r.application_link != 'nan' and r.application_link != '' %}
+                    <a href="{{ r.application_link }}" target="_blank" rel="noopener" class="btn btn-sm btn-primary">Apply Now →</a>
+                    {% elif r.internship_url and r.internship_url != 'nan' and r.internship_url != '' %}
+                    <a href="{{ r.internship_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-primary">Visit Portal →</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

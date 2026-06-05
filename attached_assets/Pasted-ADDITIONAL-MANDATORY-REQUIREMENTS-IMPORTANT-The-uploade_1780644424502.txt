@@ -1,0 +1,156 @@
+ADDITIONAL MANDATORY REQUIREMENTS
+
+IMPORTANT: The uploaded internship CSV files may NOT contain application deadlines or direct application links.
+
+DEADLINE EXTRACTION REQUIREMENT
+
+For every internship in the dataset:
+
+1. Visit the internship source website.
+2. Open the internship detail page.
+3. Extract:
+   - Application Deadline
+   - Apply Link
+   - Internship Detail URL
+4. If deadline is available in:
+   - HTML pages
+   - PDF notices
+   - Downloadable brochures
+     extract it automatically.
+5. Save extracted deadlines in the final dataset.
+6. Mark internships as:
+   - Open
+   - Closing Soon (within 7 days)
+   - Expired
+7. Update deadlines automatically whenever the scraper runs.
+
+Final dataset must contain:
+
+- internship_title
+- organization
+- skills_required
+- min_gpa
+- qualification
+- location
+- deadline
+- application_link
+- internship_url
+- source
+- description
+
+RECOMMENDATION ACCURACY REQUIREMENT
+
+Do NOT assign the same eligibility percentage or match percentage to every internship.
+
+Each internship must have a UNIQUE score calculated independently.
+
+For every internship calculate:
+
+1. Skill Match Score
+2. GPA Match Score
+3. Qualification Match Score
+4. Location Match Score
+5. Eligibility Score
+6. Final Recommendation Score
+
+Example:
+
+Internship A → 92.4%
+Internship B → 88.7%
+Internship C → 81.2%
+Internship D → 74.5%
+
+Scores must differ according to internship requirements.
+
+ELIGIBILITY ANALYSIS REQUIREMENT
+
+For every recommended internship show:
+
+- Eligible / Not Eligible
+- Eligibility Percentage
+- Match Percentage
+- Missing Skills (if any)
+- GPA Requirement Status
+- Qualification Requirement Status
+- Location Compatibility
+
+Example:
+
+AICTE Data Analyst Internship
+
+Eligibility: 91%
+Match Score: 94%
+Required GPA: Met
+Qualification: Met
+Location Match: Yes
+Missing Skills: Power BI
+
+NITI Aayog Research Internship
+
+Eligibility: 74%
+Match Score: 79%
+Required GPA: Met
+Qualification: Partially Matched
+Location Match: No
+Missing Skills: Policy Research, Excel
+
+RANKING REQUIREMENT
+
+Recommendations must be sorted from:
+
+Highest Match Score
+↓
+Lowest Match Score
+
+Never display internships in random order.
+
+Display:
+
+Rank #1
+Rank #2
+Rank #3
+...
+
+with scores and deadlines.
+
+APPLICATION LINK REQUIREMENT
+
+Every recommended internship must include:
+
+- Apply Now Button
+- Official Internship URL
+- Source Website
+
+If an application link cannot be found:
+
+- Search the internship detail page
+- Search the source website
+- Extract the most relevant official application URL
+
+DATA QUALITY REQUIREMENT
+
+Before recommendation:
+
+1. Remove duplicates.
+2. Remove expired internships.
+3. Validate deadlines.
+4. Validate URLs.
+5. Keep only active internships.
+
+FINAL OUTPUT TO USER
+
+For each recommendation display:
+
+- Rank
+- Internship Title
+- Organization
+- Match Percentage
+- Eligibility Percentage
+- Application Deadline
+- Apply Link
+- Location
+- Skills Required
+- Missing Skills
+- Eligibility Status
+
+The recommendation engine must ensure that every internship receives its own calculated score and that scores are not duplicated across all recommendations.

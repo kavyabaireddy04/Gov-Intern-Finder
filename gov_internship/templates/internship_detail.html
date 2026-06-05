@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}{{ internship.internship_title }}{% endblock %}
+{% block content %}
+
+<div class="container detail-container">
+    <div class="breadcrumb">
+        <a href="{{ url_for('index') }}">Dashboard</a> →
+        <a href="{{ url_for('search') }}">Browse</a> →
+        <span>{{ internship.internship_title[:40] }}...</span>
+    </div>
+
+    <div class="detail-layout">
+        <div class="detail-main">
+            <div class="panel detail-panel">
+                <div class="detail-header">
+                    <div class="detail-org-badge">{{ internship.organization }}</div>
+                    <span class="status-badge status-{{ internship.status | lower | replace(' ', '-') }}">{{ internship.status }}</span>
+                </div>
+                <h1 class="detail-title">{{ internship.internship_title }}</h1>
+
+                <div class="detail-meta-grid">
+                    {% if internship.location %}
+                    <div class="dmi">
+                        <span class="dmi-icon">📍</span>
+                        <div><strong>Location</strong><br>{{ internship.location }}</div>
+                    </div>
+                    {% endif %}
+                    {% if internship.duration %}
+                    <div class="dmi">
+                        <span class="dmi-icon">⏱</span>
+                        <div><strong>Duration</strong><br>{{ internship.duration }}</div>
+                    </div>
+                    {% endif %}
+                    {% if internship.stipend %}
+                    <div class="dmi">
+                        <span class="dmi-icon">💰</span>
+                        <div><strong>Stipend</strong><br>{{ internship.stipend }}</div>
+                    </div>
+                    {% endif %}
+                    {% if internship.deadline %}
+                    <div class="dmi">
+                        <span class="dmi-icon">🗓</span>
+                        <div><strong>Deadline</strong><br>{{ internship.deadline }}</div>
+                    </div>
+                    {% endif %}
+                    {% if internship.qualification %}
+                    <div class="dmi">
+                        <span class="dmi-icon">🎓</span>
+                        <div><strong>Qualification</strong><br>{{ internship.qualification }}</div>
+                    </div>
+                    {% endif %}
+                    {% if internship.source %}
+                    <div class="dmi">
+                        <span class="dmi-icon">🌐</span>
+                        <div><strong>Source</strong><br>{{ internship.source }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if internship.description %}
+                <div class="detail-section">
+                    <h3>About This Internship</h3>
+                    <p>{{ internship.description }}</p>
+                </div>
+                {% endif %}
+
+                {% if internship.skills_required %}
+                <div class="detail-section">
+                    <h3>Skills Required</h3>
+                    <div class="skills-display">
+                        {% for skill in internship.skills_required.split(',') %}
+                        <span class="skill-chip">{{ skill.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="detail-actions">
+                    {% if internship.application_link and internship.application_link != 'nan' and internship.application_link != '' %}
+                    <a href="{{ internship.application_link }}" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
+                        Apply Now → Official Portal
+                    </a>
+                    {% elif internship.internship_url and internship.internship_url != 'nan' and internship.internship_url != '' %}
+                    <a href="{{ internship.internship_url }}" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
+                        Visit Official Portal →
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('recommend') }}" class="btn btn-outline btn-lg">Check My Match Score</a>
+                </div>
+            </div>
+        </div>
+
+        <aside class="detail-sidebar">
+            <div class="panel">
+                <h3>Quick Info</h3>
+                <div class="qi-list">
+                    <div class="qi-item"><span>Organization</span><strong>{{ internship.organization }}</strong></div>
+                    <div class="qi-item"><span>Min GPA</span><strong>{{ '%.1f' % internship.min_gpa if internship.min_gpa else 'Not specified' }}</strong></div>
+                    <div class="qi-item"><span>Status</span><strong>{{ internship.status }}</strong></div>
+                    {% if internship.internship_url and internship.internship_url != 'nan' %}
+                    <div class="qi-item"><span>Portal</span><a href="{{ internship.internship_url }}" target="_blank" rel="noopener">Official Link →</a></div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="panel panel-cta">
+                <h3>🎯 Check Your Match</h3>
+                <p>See how well this internship matches your profile with an eligibility analysis.</p>
+                <a href="{{ url_for('recommend') }}" class="btn btn-primary btn-full">Get My Score</a>
+            </div>
+            <div class="panel">
+                <h3>Similar Internships</h3>
+                <p><a href="{{ url_for('search', keyword=internship.organization.split(' ')[0]) }}">More from {{ internship.organization.split(' ')[0] }}</a></p>
+                <p><a href="{{ url_for('search', location=internship.location) }}">More in {{ internship.location[:20] }}</a></p>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

@@ -1,44 +1,59 @@
-# [Project name]
+# GovIntern India
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+AI-powered Government Internship Recommendation System for Indian students — no API keys, 100% free.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `cd gov_internship && python app.py` — run the Flask app (port 5000)
+- Workflow "GovIntern App" starts it automatically
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Python 3.11, Flask, SQLite
+- scikit-learn (TF-IDF + Cosine Similarity)
+- pandas, BeautifulSoup4, requests (scraping)
+- pdfplumber (PDF extraction)
+- Pure HTML/CSS/JS frontend (no React)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `gov_internship/app.py` — Flask application entry point
+- `gov_internship/modules/recommendation.py` — TF-IDF scoring + eligibility engine
+- `gov_internship/modules/data_cleaner.py` — CSV parsing and data normalization
+- `gov_internship/modules/scraper.py` — Government portal scrapers
+- `gov_internship/modules/database.py` — SQLite CRUD operations
+- `gov_internship/db/internships.db` — SQLite database
+- `gov_internship/data/` — CSV files (sources + processed)
+- `gov_internship/templates/` — Jinja2 HTML templates
+- `gov_internship/static/` — CSS and JS
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- SQLite chosen over PostgreSQL for zero-config free-tier compatibility
+- TF-IDF + Cosine Similarity replaces any LLM — fully offline, no API keys
+- Weighted scoring: Skills 40%, GPA 25%, Qualification 20%, Location 15%
+- Each internship gets a unique computed score (no shared scores)
+- Eligibility scoring is separate from match scoring for clarity
+- Government org detection uses keyword matching against india_gov_internship_sources.csv
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
-
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Dashboard with live stats (total, open, closing soon, orgs, sources)
+- Quick match form on homepage
+- Browse/search with keyword, location, qualification, status filters
+- Personalized recommendation engine returning Top 10 ranked internships
+- Per-recommendation breakdown: skill bar, GPA, qualification, location scores
+- Missing skills identified per recommendation
+- Apply Now links to official government portals
+- Admin panel: run scrapers, rebuild dataset, upload CSVs, export data
+- CSV export of full dataset
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Flask must be started from the `gov_internship/` directory (cd is important for relative paths)
+- After uploading new CSVs, click "Rebuild Dataset" in Admin panel to re-process
+- The workflow "GovIntern App" must be running for the site to be accessible
+- Government scraper uses polite delays (0.5s between requests) to avoid being blocked
 
 ## Pointers
 
